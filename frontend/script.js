@@ -16,11 +16,37 @@ document.addEventListener('DOMContentLoaded', () => {
     totalCourses = document.getElementById('totalCourses');
     courseTitles = document.getElementById('courseTitles');
     newChatButton = document.getElementById('newChatButton');
-    
+
     setupEventListeners();
+    initThemeToggle();
     createNewSession();
     loadCourseStats();
 });
+
+// Theme Toggle
+function initThemeToggle() {
+    const themeToggle = document.getElementById('themeToggle');
+
+    // Sync button label with the theme already applied by the early <head> script
+    syncToggleLabel(themeToggle);
+
+    themeToggle.addEventListener('click', () => {
+        const nextTheme = document.documentElement.getAttribute('data-theme') === 'light'
+            ? 'dark'
+            : 'light';
+
+        document.documentElement.setAttribute('data-theme', nextTheme);
+        localStorage.setItem('theme', nextTheme);
+        syncToggleLabel(themeToggle);
+    });
+}
+
+function syncToggleLabel(btn) {
+    const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    const label = isLight ? 'Switch to dark mode' : 'Switch to light mode';
+    btn.setAttribute('aria-label', label);
+    btn.setAttribute('title', label);
+}
 
 // Event Listeners
 function setupEventListeners() {
