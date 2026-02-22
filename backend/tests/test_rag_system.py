@@ -1,10 +1,10 @@
 import pytest
 from unittest.mock import MagicMock, patch
 
-
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
+
 
 @pytest.fixture
 def mock_config():
@@ -26,10 +26,13 @@ def rag_system(mock_config):
     RAGSystem with VectorStore, AIGenerator, and DocumentProcessor all mocked.
     The real SessionManager and ToolManager (+ tools) are used.
     """
-    with patch("rag_system.VectorStore"), \
-         patch("rag_system.AIGenerator"), \
-         patch("rag_system.DocumentProcessor"):
+    with (
+        patch("rag_system.VectorStore"),
+        patch("rag_system.AIGenerator"),
+        patch("rag_system.DocumentProcessor"),
+    ):
         from rag_system import RAGSystem
+
         system = RAGSystem(mock_config)
         # Make ai_generator.generate_response return a plain string by default
         system.ai_generator.generate_response.return_value = "Default response"
@@ -39,6 +42,7 @@ def rag_system(mock_config):
 # ---------------------------------------------------------------------------
 # Tests
 # ---------------------------------------------------------------------------
+
 
 def test_query_returns_response_and_sources_tuple(rag_system):
     """query() must return a 2-tuple of (str, list)."""
@@ -106,7 +110,9 @@ def test_query_pipeline_with_zero_max_results_search_error():
             )
         return {
             "documents": [["Python is a versatile programming language."]],
-            "metadatas": [[{"course_title": "Python Fundamentals", "lesson_number": 1}]],
+            "metadatas": [
+                [{"course_title": "Python Fundamentals", "lesson_number": 1}]
+            ],
             "distances": [[0.1]],
         }
 
@@ -114,7 +120,7 @@ def test_query_pipeline_with_zero_max_results_search_error():
 
     # VectorStore-like object that uses the REAL search() but with our mock ChromaDB
     vs = MagicMock()
-    vs.max_results = real_config.MAX_RESULTS   # 0 now (bug); 5 after fix
+    vs.max_results = real_config.MAX_RESULTS  # 0 now (bug); 5 after fix
     vs.course_content = mock_collection
     vs._build_filter.return_value = None
     vs.get_existing_course_titles.return_value = []
@@ -145,11 +151,14 @@ def test_query_pipeline_with_zero_max_results_search_error():
 
     mock_api_client.messages.create.side_effect = [tool_resp, final_resp]
 
-    with patch("rag_system.VectorStore", return_value=vs), \
-         patch("rag_system.DocumentProcessor"), \
-         patch("rag_system.SessionManager"), \
-         patch("ai_generator.anthropic.Anthropic", return_value=mock_api_client):
+    with (
+        patch("rag_system.VectorStore", return_value=vs),
+        patch("rag_system.DocumentProcessor"),
+        patch("rag_system.SessionManager"),
+        patch("ai_generator.anthropic.Anthropic", return_value=mock_api_client),
+    ):
         from rag_system import RAGSystem
+
         system = RAGSystem(real_config)
         _, sources = system.query("What is Python?")
 

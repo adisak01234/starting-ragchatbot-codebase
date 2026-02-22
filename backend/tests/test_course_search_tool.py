@@ -3,14 +3,16 @@ from unittest.mock import MagicMock
 from vector_store import SearchResults
 from search_tools import CourseSearchTool
 
-
 # ---------------------------------------------------------------------------
 # Helpers / fixtures
 # ---------------------------------------------------------------------------
 
+
 def make_search_results(docs, course_title="Test Course", lesson_num=1):
     """Build a successful SearchResults from a list of document strings."""
-    metadata = [{"course_title": course_title, "lesson_number": lesson_num} for _ in docs]
+    metadata = [
+        {"course_title": course_title, "lesson_number": lesson_num} for _ in docs
+    ]
     distances = [0.1] * len(docs)
     return SearchResults(documents=docs, metadata=metadata, distances=distances)
 
@@ -31,6 +33,7 @@ def tool(mock_store):
 # ---------------------------------------------------------------------------
 # Tests
 # ---------------------------------------------------------------------------
+
 
 def test_execute_returns_formatted_text_on_success(tool, mock_store):
     """Happy path: result contains course/lesson header and document text."""
@@ -54,7 +57,9 @@ def test_execute_returns_search_error_when_search_has_error(tool, mock_store):
 
 def test_execute_returns_no_content_message_when_empty(tool, mock_store):
     """Empty SearchResults (no error) → 'No relevant content found' message."""
-    mock_store.search.return_value = SearchResults(documents=[], metadata=[], distances=[])
+    mock_store.search.return_value = SearchResults(
+        documents=[], metadata=[], distances=[]
+    )
     result = tool.execute(query="test query")
 
     assert "No relevant content found" in result
@@ -83,7 +88,9 @@ def test_execute_does_not_populate_sources_on_error(tool, mock_store):
 
 def test_execute_passes_course_name_filter_to_store(tool, mock_store):
     """store.search is called with the course_name keyword argument."""
-    mock_store.search.return_value = SearchResults(documents=[], metadata=[], distances=[])
+    mock_store.search.return_value = SearchResults(
+        documents=[], metadata=[], distances=[]
+    )
 
     tool.execute(query="test", course_name="My Course")
 
@@ -94,7 +101,9 @@ def test_execute_passes_course_name_filter_to_store(tool, mock_store):
 
 def test_execute_passes_lesson_number_filter_to_store(tool, mock_store):
     """store.search is called with the lesson_number keyword argument."""
-    mock_store.search.return_value = SearchResults(documents=[], metadata=[], distances=[])
+    mock_store.search.return_value = SearchResults(
+        documents=[], metadata=[], distances=[]
+    )
 
     tool.execute(query="test", lesson_number=5)
 

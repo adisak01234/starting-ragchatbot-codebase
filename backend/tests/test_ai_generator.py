@@ -2,10 +2,10 @@ import pytest
 from unittest.mock import MagicMock, patch
 from ai_generator import AIGenerator
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 def _text_response(text="Response text", stop_reason="end_turn"):
     """Build a mock Anthropic response that ends with plain text."""
@@ -18,7 +18,9 @@ def _text_response(text="Response text", stop_reason="end_turn"):
     return resp
 
 
-def _tool_use_response(tool_name="search_course_content", tool_id="tu_001", inputs=None):
+def _tool_use_response(
+    tool_name="search_course_content", tool_id="tu_001", inputs=None
+):
     """Build a mock Anthropic response that requests a tool call."""
     resp = MagicMock()
     resp.stop_reason = "tool_use"
@@ -34,6 +36,7 @@ def _tool_use_response(tool_name="search_course_content", tool_id="tu_001", inpu
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
+
 
 @pytest.fixture
 def mock_api_client():
@@ -53,7 +56,10 @@ def generator(mock_api_client):
 # Tests
 # ---------------------------------------------------------------------------
 
-def test_generate_response_returns_text_directly_on_end_turn(generator, mock_api_client):
+
+def test_generate_response_returns_text_directly_on_end_turn(
+    generator, mock_api_client
+):
     """stop_reason='end_turn' → returns first content block's text immediately."""
     mock_api_client.messages.create.return_value = _text_response("Hello world")
 
@@ -83,7 +89,9 @@ def test_generate_response_executes_tool_on_tool_use(generator, mock_api_client)
     )
 
 
-def test_generate_response_makes_two_api_calls_when_tool_used(generator, mock_api_client):
+def test_generate_response_makes_two_api_calls_when_tool_used(
+    generator, mock_api_client
+):
     """Two API calls are made: initial + follow-up after tool execution."""
     mock_api_client.messages.create.side_effect = [
         _tool_use_response(),
@@ -98,7 +106,9 @@ def test_generate_response_makes_two_api_calls_when_tool_used(generator, mock_ap
     assert mock_api_client.messages.create.call_count == 2
 
 
-def test_handle_tool_execution_includes_tool_result_in_second_call(generator, mock_api_client):
+def test_handle_tool_execution_includes_tool_result_in_second_call(
+    generator, mock_api_client
+):
     """Second API call's messages contain a tool_result block with the tool output."""
     mock_api_client.messages.create.side_effect = [
         _tool_use_response("search_course_content", "tool_abc", {"query": "test"}),
@@ -139,7 +149,9 @@ def test_synthesis_call_excludes_tools(generator, mock_api_client):
     tool_manager = MagicMock()
     tool_manager.execute_tool.return_value = "result"
 
-    tools = [{"name": "search_course_content", "description": "...", "input_schema": {}}]
+    tools = [
+        {"name": "search_course_content", "description": "...", "input_schema": {}}
+    ]
     generator.generate_response(query="test", tools=tools, tool_manager=tool_manager)
 
     # 2nd call (round 1) should still include tools
@@ -151,7 +163,9 @@ def test_synthesis_call_excludes_tools(generator, mock_api_client):
     assert "tools" not in third_call_kwargs
 
 
-def test_generate_response_returns_final_text_after_tool_execution(generator, mock_api_client):
+def test_generate_response_returns_final_text_after_tool_execution(
+    generator, mock_api_client
+):
     """Text from the second API call is returned as the final response."""
     mock_api_client.messages.create.side_effect = [
         _tool_use_response(),
@@ -169,6 +183,7 @@ def test_generate_response_returns_final_text_after_tool_execution(generator, mo
 # ---------------------------------------------------------------------------
 # New tests: two sequential tool rounds
 # ---------------------------------------------------------------------------
+
 
 def test_two_sequential_tool_calls_makes_three_api_calls(generator, mock_api_client):
     """Two tool rounds plus synthesis = 3 API calls total."""
@@ -240,7 +255,9 @@ def test_second_round_api_call_includes_tools(generator, mock_api_client):
     tool_manager = MagicMock()
     tool_manager.execute_tool.return_value = "result"
 
-    tools = [{"name": "search_course_content", "description": "...", "input_schema": {}}]
+    tools = [
+        {"name": "search_course_content", "description": "...", "input_schema": {}}
+    ]
     generator.generate_response(query="test", tools=tools, tool_manager=tool_manager)
 
     second_call_kwargs = mock_api_client.messages.create.call_args_list[1][1]
