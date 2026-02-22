@@ -2,6 +2,16 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Running Tests
+
+```bash
+# Run all tests from the repo root
+uv run pytest backend/tests/
+
+# Run a specific test file
+uv run pytest backend/tests/test_rag_system.py
+```
+
 ## Running the Application
 
 ```bash

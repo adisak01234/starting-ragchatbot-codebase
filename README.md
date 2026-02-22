@@ -54,3 +54,13 @@ The application will be available at:
 - Web Interface: `http://localhost:8000`
 - API Documentation: `http://localhost:8000/docs`
 
+## Running Tests
+
+```bash
+# Run all tests from the repo root
+uv run pytest backend/tests/
+
+# Run a specific test file
+uv run pytest backend/tests/test_rag_system.py
+```
+
